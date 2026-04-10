@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ETERNITY | 星系存证</title>
+  <style>
+    :root {
+      --accent-color: #ffffff;
+      --bg-dark: #050505;
+      --gold: #d4af37;
+    }
+
+    body,
+    html {
+      margin: 0;
+      padding: 0;
+      width: 100%;
+      height: 100%;
+      background: var(--bg-dark);
+      color: var(--accent-color);
+      overflow: hidden;
+      font-family: "Optima", "Cinzel", "Source Han Serif SC", serif;
+    }
+
+    /* 极简画布背景 */
+    #canvas-stars {
+      position: fixed;
+      top: 0;
+      left: 0;
+      z-index: 1;
+    }
+
+    .overlay {
+      position: relative;
+      z-index: 10;
+      width: 100%;
+      height: 100%;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background: radial-gradient(circle, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
+    }
+
+    /* --- 阶段：初始唤醒 --- */
+    #stage-init {
+      text-align: center;
+      cursor: pointer;
+      transition: 1.5s;
+    }
+
+    .orb {
+      width: 120px;
+      height: 120px;
+      border-radius: 50%;
+      background: white;
+      box-shadow: 0 0 50px white;
+      margin: 0 auto 30px;
+      animation: breathe 4s infinite ease-in-out;
+    }
+
+    @keyframes breathe {
+
+      0%,
+      100% {
+        transform: scale(1);
+        box-shadow: 0 0 30px white;
+        opacity: 0.6;
+      }
+
+      50% {
+        transform: scale(1.1);
+        box-shadow: 0 0 70px white;
+        opacity: 1;
+      }
+    }
+
+    /* --- 阶段：表白叙事 --- */
+    #stage-proposal {
+      display: none;
+      max-width: 500px;
+      text-align: left;
+    }
+
+    .typewriter-line {
+      margin-bottom: 20px;
+      font-size: 1.2rem;
+      min-height: 1.5em;
+      letter-spacing: 3px;
+      line-height: 2;
+      color: #ccc;
+    }
+
+    .highlight {
+      color: #fff;
+      font-weight: bold;
+      border-bottom: 1px solid #fff;
+      padding-bottom: 5px;
+    }
+
+    .btn-container {
+      margin-top: 50px;
+      display: flex;
+      gap: 40px;
+      opacity: 0;
+      transition: 2s;
+    }
+
+    .glass-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.3);
+      color: white;
+      padding: 12px 40px;
+      letter-spacing: 4px;
+      cursor: pointer;
+      backdrop-filter: blur(10px);
+      transition: 0.5s;
+    }
+
+    .glass-btn:hover {
+      background: white;
+      color: black;
+    }
+
+    /* --- 阶段：永恒纪念 --- */
+    #stage-memorial {
+      display: none;
+      text-align: center;
+    }
+
+    .counter-label {
+      font-size: 0.7rem;
+      letter-spacing: 8px;
+      color: var(--gold);
+      margin-bottom: 30px;
+      text-transform: uppercase;
+    }
+
+    .main-timer {
+      font-size: 4rem;
+      font-weight: 100;
+      font-family: "Helvetica Neue", sans-serif;
+      letter-spacing: -2px;
+    }
+
+    .main-timer span {
+      font-size: 1rem;
+      color: #555;
+      margin: 0 10px;
+      letter-spacing: 2px;
+    }
+
+    /* 隐藏的背景照片 */
+    #bg-photo {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-size: cover;
+      background-position: center;
+      opacity: 0;
+      z-index: 0;
+      transition: 5s ease;
+    }
+  </style>
+</head>
+
+<body>
+
+  <canvas id="canvas-stars"></canvas>
+  <div id="bg-photo"></div>
+
+  <div class="overlay">
+    <div id="stage-init" onclick="awaken()">
+      <div class="orb"></div>
+      <p style="letter-spacing: 10px; font-weight: 100; font-size: 0.8rem;">CLICK TO AWAKEN</p>
+    </div>
+
+    <div id="stage-proposal">
+      <div id="line1" class="typewriter-line"></div>
+      <div id="line2" class="typewriter-line"></div>
+      <div id="line3" class="typewriter-line"></div>
+      <div class="btn-container" id="proposal-btns">
+        <button class="glass-btn" onclick="accept()">YES</button>
+        <button class="glass-btn" id="no-btn" onmouseover="dodge()">NO</button>
+      </div>
+    </div>
+
+    <div id="stage-memorial">
+      <div class="counter-label">The Light Of Our Universe</div>
+      <div class="main-timer" id="timer-val">00<span>D</span>00<span>H</span>00<span>M</span>00<span>S</span></div>
+      <div style="margin-top: 40px; font-style: italic; color: #888; font-size: 0.9rem;" id="final-quote"></div>
+    </div>
+  </div>
+
+  <script>
+    // --- 动态背景系统 ---
+    const canvas = document.getElementById('canvas-stars');
+    const ctx = canvas.getContext('2d');
+    let stars = [];
+
+    function initCanvas() {
+      canvas.width = window.innerWidth;
+      canvas.height = window.innerHeight;
+      stars = [];
+      for (let i = 0; i < 150; i++) {
+        stars.push({
+          x: Math.random() * canvas.width,
+          y: Math.random() * canvas.height,
+          size: Math.random() * 1.5,
+          speed: Math.random() * 0.5 + 0.1,
+          alpha: Math.random()
+        });
+      }
+    }
+
+    function drawStars() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.fillStyle = "white";
+      stars.forEach(s => {
+        ctx.globalAlpha = s.alpha;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
+        ctx.fill();
+        s.y -= s.speed;
+        if (s.y < 0) s.y = canvas.height;
+      });
+      requestAnimationFrame(drawStars);
+    }
+
+    // --- 逻辑流转 ---
+    const CONFIG = {
+      lines: [
+        "于万千星辰中，我捕捉到了你的光。",
+        "原本荒芜的宇宙，因你的出现而有了引力。",
+        "这一刻，我想邀请你共同命名余下的时光。"
+      ],
+      finalQuotes: [
+        "“你是我所有浪漫的起源。”",
+        "“星河滚烫，你是人间理想。”",
+        "“从此，我们的轨迹交织在永恒里。”"
+      ],
+      photoUrl: "https://images.unsplash.com/photo-1464802686167-b939a67e06a1?q=80&w=1920" // 建议换成你们的合影
+    };
+
+    window.onload = () => {
+      initCanvas();
+      drawStars();
+      const status = localStorage.getItem('site_status');
+      if (status === 'eternal') {
+        enterStageMemorial(true);
+      }
+    };
+
+    function awaken() {
+      document.getElementById('stage-init').style.opacity = '0';
+      setTimeout(() => {
+        document.getElementById('stage-init').style.display = 'none';
+        enterStageProposal();
+      }, 1500);
+    }
+
+    async function enterStageProposal() {
+      document.getElementById('stage-proposal').style.display = 'block';
+      for (let i = 1; i <= 3; i++) {
+        await typeText(`line${i}`, CONFIG.lines[i - 1]);
+      }
+      document.getElementById('proposal-btns').style.opacity = '1';
+    }
+
+    function typeText(id, text) {
+      return new Promise(resolve => {
+        let i = 0;
+        const el = document.getElementById(id);
+        const interval = setInterval(() => {
+          el.innerText += text[i];
+          i++;
+          if (i >= text.length) {
+            clearInterval(interval);
+            resolve();
+          }
+        }, 100);
+      });
+    }
+
+    function dodge() {
+      const btn = document.getElementById('no-btn');
+      btn.style.transform = `translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0.5)`;
+      btn.style.opacity = '0.3';
+    }
+
+    function accept() {
+      localStorage.setItem('site_status', 'eternal');
+      localStorage.setItem('start_ms', new Date().getTime());
+
+      // 视觉大彩蛋：全屏发光
+      const orb = document.createElement('div');
+      orb.style.cssText = "position:fixed; top:50%; left:50%; width:1px; height:1px; background:white; box-shadow:0 0 500px 500px white; z-index:100; transition:2s; transform:translate(-50%, -50%);";
+      document.body.appendChild(orb);
+
+      setTimeout(() => {
+        orb.style.opacity = '0';
+        enterStageMemorial(false);
+      }, 1500);
+    }
+
+    function enterStageMemorial(isQuick) {
+      document.getElementById('stage-init').style.display = 'none';
+      document.getElementById('stage-proposal').style.display = 'none';
+      const mem = document.getElementById('stage-memorial');
+      mem.style.display = 'block';
+
+      // 彩蛋：背景照片隐约浮现
+      const bg = document.getElementById('bg-photo');
+      bg.style.backgroundImage = `url(${CONFIG.photoUrl})`;
+      bg.style.opacity = '0.3';
+
+      // 随机最终情话
+      document.getElementById('final-quote').innerText = CONFIG.finalQuotes[Math.floor(Math.random() * CONFIG.finalQuotes.length)];
+
+      startClock();
+    }
+
+    function startClock() {
+      const start = localStorage.getItem('start_ms');
+      const el = document.getElementById('timer-val');
+      function update() {
+        const diff = new Date().getTime() - start;
+        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
+        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        const pad = n => n < 10 ? '0' + n : n;
+        el.innerHTML = `${pad(d)}<span>D</span>${pad(h)}<span>H</span>${pad(m)}<span>M</span>${pad(s)}<span>S</span>`;
+      }
+      setInterval(update, 1000);
+      update();
+    }
+
+    // 交互彩蛋：点击爆裂
+    window.addEventListener('click', (e) => {
+      if (localStorage.getItem('site_status') !== 'eternal') return;
+      const particle = document.createElement('div');
+      particle.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; width:4px; height:4px; background:white; box-shadow:0 0 15px white; border-radius:50%; pointer-events:none; z-index:99; transition:1s;`;
+      document.body.appendChild(particle);
+      setTimeout(() => {
+        particle.style.transform = `scale(10) translateY(-50px)`;
+        particle.style.opacity = '0';
+      }, 10);
+      setTimeout(() => particle.remove(), 1000);
+    });
+
+  </script>
+</body>
+
+</html>
