@@ -3,12 +3,12 @@
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>ETERNITY | 星系存证</title>
   <style>
     :root {
       --accent-color: #ffffff;
-      --bg-dark: #050505;
+      --bg-dark: #000000;
       --gold: #d4af37;
     }
 
@@ -22,14 +22,15 @@
       color: var(--accent-color);
       overflow: hidden;
       font-family: "Optima", "Cinzel", "Source Han Serif SC", serif;
+      -webkit-tap-highlight-color: transparent;
     }
 
-    /* 极简画布背景 */
-    #canvas-stars {
+    #canvas-cosmos {
       position: fixed;
       top: 0;
       left: 0;
       z-index: 1;
+      pointer-events: none;
     }
 
     .overlay {
@@ -40,24 +41,34 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background: radial-gradient(circle, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.8) 100%);
+      background: radial-gradient(circle at center, rgba(30, 30, 50, 0.3) 0%, rgba(0, 0, 0, 0.8) 100%);
     }
 
-    /* --- 阶段：初始唤醒 --- */
-    #stage-init {
+    .stage {
+      display: none;
+      opacity: 0;
+      transition: 2s;
       text-align: center;
+      z-index: 20;
+    }
+
+    /* --- 阶段：初始唤醒 (光球已还原并增强) --- */
+    #stage-init {
+      display: block;
+      opacity: 1;
       cursor: pointer;
-      transition: 1.5s;
     }
 
     .orb {
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      /* 还原原本宏伟的大小 */
+      height: 140px;
       border-radius: 50%;
-      background: white;
-      box-shadow: 0 0 50px white;
-      margin: 0 auto 30px;
-      animation: breathe 4s infinite ease-in-out;
+      background: #fff;
+      /* 增强深邃的光晕效果 */
+      box-shadow: 0 0 80px 30px #fff;
+      margin: 0 auto 50px;
+      animation: breathe 5s infinite ease-in-out;
     }
 
     @keyframes breathe {
@@ -65,54 +76,139 @@
       0%,
       100% {
         transform: scale(1);
-        box-shadow: 0 0 30px white;
+        box-shadow: 0 0 60px 20px #fff;
         opacity: 0.6;
       }
 
       50% {
-        transform: scale(1.1);
-        box-shadow: 0 0 70px white;
+        transform: scale(1.08);
+        box-shadow: 0 0 100px 40px #fff;
         opacity: 1;
       }
     }
 
     /* --- 阶段：表白叙事 --- */
     #stage-proposal {
-      display: none;
       max-width: 500px;
       text-align: left;
+      padding: 0 30px;
     }
 
     .typewriter-line {
-      margin-bottom: 20px;
-      font-size: 1.2rem;
-      min-height: 1.5em;
+      margin-bottom: 25px;
+      font-size: 1.25rem;
+      min-height: 1.6em;
       letter-spacing: 3px;
       line-height: 2;
+      color: #ddd;
+    }
+
+    /* --- 阶段：永恒纪念 --- */
+    #stage-memorial {
+      width: 100%;
+      height: 100%;
+      display: none;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .counter-label {
+      letter-spacing: 10px;
+      color: var(--gold);
+      margin-bottom: 30px;
+      text-transform: uppercase;
+      font-size: 0.85rem;
+    }
+
+    .main-timer {
+      font-size: 4.5rem;
+      font-weight: 100;
+      letter-spacing: -3px;
+      color: #fff;
+      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    }
+
+    .main-timer span {
+      font-size: 1.1rem;
+      color: #777;
+      margin: 0 10px;
+      letter-spacing: 3px;
+    }
+
+    /* --- 右侧滚动故事区 --- */
+    .scroll-content {
+      position: absolute;
+      right: 5%;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 300px;
+      max-height: 70vh;
+      overflow-y: auto;
+      padding: 20px;
+      opacity: 0;
+      transition: 3s ease;
+      mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+      -webkit-mask-image: linear-gradient(to bottom, transparent, black 15%, black 85%, transparent);
+      z-index: 30;
+      text-align: right;
+    }
+
+    .scroll-content::-webkit-scrollbar {
+      display: none;
+    }
+
+    .story-card {
+      margin-bottom: 60px;
+    }
+
+    .story-date {
+      color: var(--gold);
+      letter-spacing: 3px;
+      font-size: 0.8rem;
+      margin-bottom: 8px;
+      display: block;
+    }
+
+    .story-text {
+      font-size: 1rem;
+      line-height: 1.8;
       color: #ccc;
     }
 
-    .highlight {
-      color: #fff;
-      font-weight: bold;
-      border-bottom: 1px solid #fff;
-      padding-bottom: 5px;
+    @media (max-width: 1024px) {
+      .scroll-content {
+        position: relative;
+        right: auto;
+        top: auto;
+        transform: none;
+        width: 100%;
+        max-width: 500px;
+        margin-top: 50px;
+        text-align: center;
+        max-height: 300px;
+      }
+
+      .main-timer {
+        font-size: 3rem;
+      }
     }
 
     .btn-container {
-      margin-top: 50px;
+      margin-top: 60px;
       display: flex;
       gap: 40px;
       opacity: 0;
       transition: 2s;
+      justify-content: center;
     }
 
     .glass-btn {
       background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.3);
+      border: 1px solid rgba(255, 255, 255, 0.2);
       color: white;
-      padding: 12px 40px;
-      letter-spacing: 4px;
+      padding: 15px 50px;
+      letter-spacing: 5px;
       cursor: pointer;
       backdrop-filter: blur(10px);
       transition: 0.5s;
@@ -121,37 +217,14 @@
     .glass-btn:hover {
       background: white;
       color: black;
+      box-shadow: 0 0 30px rgba(255, 255, 255, 0.5);
     }
 
-    /* --- 阶段：永恒纪念 --- */
-    #stage-memorial {
-      display: none;
-      text-align: center;
+    #no-btn {
+      transition: 0.3s;
+      color: #888;
     }
 
-    .counter-label {
-      font-size: 0.7rem;
-      letter-spacing: 8px;
-      color: var(--gold);
-      margin-bottom: 30px;
-      text-transform: uppercase;
-    }
-
-    .main-timer {
-      font-size: 4rem;
-      font-weight: 100;
-      font-family: "Helvetica Neue", sans-serif;
-      letter-spacing: -2px;
-    }
-
-    .main-timer span {
-      font-size: 1rem;
-      color: #555;
-      margin: 0 10px;
-      letter-spacing: 2px;
-    }
-
-    /* 隐藏的背景照片 */
     #bg-photo {
       position: fixed;
       top: 0;
@@ -162,196 +235,224 @@
       background-position: center;
       opacity: 0;
       z-index: 0;
-      transition: 5s ease;
+      transition: 8s ease;
+      filter: blur(2px) brightness(0.5);
     }
   </style>
 </head>
 
-<body>
+<body onclick="createStarPop(event)">
 
-  <canvas id="canvas-stars"></canvas>
+  <canvas id="canvas-cosmos"></canvas>
   <div id="bg-photo"></div>
 
   <div class="overlay">
-    <div id="stage-init" onclick="awaken()">
+    <div id="stage-init" class="stage" onclick="awakenCosmos()">
       <div class="orb"></div>
-      <p style="letter-spacing: 10px; font-weight: 100; font-size: 0.8rem;">CLICK TO AWAKEN</p>
+      <p style="letter-spacing: 12px; font-weight: 100; font-size: 0.85rem; color: #aaa;">点击唤醒你的宇宙!!!</p>
     </div>
 
-    <div id="stage-proposal">
+    <div id="stage-proposal" class="stage">
       <div id="line1" class="typewriter-line"></div>
       <div id="line2" class="typewriter-line"></div>
       <div id="line3" class="typewriter-line"></div>
       <div class="btn-container" id="proposal-btns">
-        <button class="glass-btn" onclick="accept()">YES</button>
-        <button class="glass-btn" id="no-btn" onmouseover="dodge()">NO</button>
+        <button class="glass-btn" onclick="acceptLove()">YES</button>
+        <button class="glass-btn" id="no-btn" onmouseover="dodgeNo()" onclick="dodgeNo()">NO</button>
       </div>
     </div>
 
-    <div id="stage-memorial">
-      <div class="counter-label">The Light Of Our Universe</div>
+    <div id="stage-memorial" class="stage">
+      <span class="counter-label">Eternity Registry | 星系存证</span>
       <div class="main-timer" id="timer-val">00<span>D</span>00<span>H</span>00<span>M</span>00<span>S</span></div>
-      <div style="margin-top: 40px; font-style: italic; color: #888; font-size: 0.9rem;" id="final-quote"></div>
+      <div id="final-quote" style="margin-top: 30px; font-style: italic; color: #999; font-size: 0.9rem;"></div>
+
+      <div class="scroll-content" id="story-scroll">
+        <div class="story-card">
+          <span class="story-date">2026.02.12</span>
+          <p class="story-text">第一次遇见你，宇宙的引力有了方向。</p>
+        </div>
+        <div class="story-card">
+          <span class="story-date">2026.02.17</span>
+          <p class="story-text">新年的钟声敲响，我发现我的愿望里全是你。</p>
+        </div>
+        <div class="story-card">
+          <span class="story-date">EVERY DAY</span>
+          <p class="story-text">想在每一个平凡的日子里，和你虚度光阴。</p>
+        </div>
+        <div style="height: 100px;"></div>
+      </div>
     </div>
   </div>
 
   <script>
-    // --- 动态背景系统 ---
-    const canvas = document.getElementById('canvas-stars');
+    // --- Canvas 系统 ---
+    const canvas = document.getElementById('canvas-cosmos');
     const ctx = canvas.getContext('2d');
-    let stars = [];
+    let stars = [], planets = [], meteors = [];
+
+    const COSMOS_CONF = {
+      starCount: 180, planetCount: 5, meteorRequestRate: 0.002,
+      colors: ['#fff', '#ffd700', '#87ceeb', '#ff6b6b', '#9b59b6']
+    };
 
     function initCanvas() {
       canvas.width = window.innerWidth;
       canvas.height = window.innerHeight;
-      stars = [];
-      for (let i = 0; i < 150; i++) {
-        stars.push({
-          x: Math.random() * canvas.width,
-          y: Math.random() * canvas.height,
-          size: Math.random() * 1.5,
-          speed: Math.random() * 0.5 + 0.1,
-          alpha: Math.random()
-        });
+    }
+
+    class Star {
+      constructor() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height; this.size = Math.random() * 1.2; this.opacity = Math.random(); this.f = 1; }
+      draw() {
+        this.opacity += 0.01 * this.f;
+        if (this.opacity > 1 || this.opacity < 0.1) this.f *= -1;
+        ctx.fillStyle = `rgba(255,255,255,${this.opacity})`;
+        ctx.beginPath(); ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2); ctx.fill();
       }
     }
 
-    function drawStars() {
-      ctx.clearRect(0, 0, canvas.width, canvas.height);
-      ctx.fillStyle = "white";
-      stars.forEach(s => {
-        ctx.globalAlpha = s.alpha;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, s.size, 0, Math.PI * 2);
-        ctx.fill();
-        s.y -= s.speed;
-        if (s.y < 0) s.y = canvas.height;
-      });
-      requestAnimationFrame(drawStars);
+    class Planet {
+      constructor(i) {
+        this.r = 120 + i * 50; this.angle = Math.random() * Math.PI * 2;
+        this.speed = (0.0008 / (i + 1)) + 0.0005; this.color = COSMOS_CONF.colors[i % COSMOS_CONF.colors.length]; this.size = Math.random() * 5 + 2;
+      }
+      draw() {
+        this.angle += this.speed;
+        const x = canvas.width / 2 + Math.cos(this.angle) * this.r;
+        const y = canvas.height / 2 + Math.sin(this.angle) * this.r * 0.8;
+        ctx.fillStyle = this.color; ctx.beginPath(); ctx.arc(x, y, this.size, 0, Math.PI * 2); ctx.fill();
+      }
     }
 
-    // --- 逻辑流转 ---
-    const CONFIG = {
-      lines: [
-        "于万千星辰中，我捕捉到了你的光。",
-        "原本荒芜的宇宙，因你的出现而有了引力。",
-        "这一刻，我想邀请你共同命名余下的时光。"
-      ],
-      finalQuotes: [
-        "“你是我所有浪漫的起源。”",
-        "“星河滚烫，你是人间理想。”",
-        "“从此，我们的轨迹交织在永恒里。”"
-      ],
-      photoUrl: "https://images.unsplash.com/photo-1464802686167-b939a67e06a1?q=80&w=1920" // 建议换成你们的合影
+    class Meteor {
+      constructor() { this.reset(); }
+      reset() { this.x = Math.random() * canvas.width; this.y = Math.random() * canvas.height * 0.3; this.l = Math.random() * 80 + 50; this.s = Math.random() * 10 + 5; this.a = 1; }
+      draw() {
+        this.x += this.s; this.y += this.s * 0.5; this.a -= 0.012;
+        ctx.strokeStyle = `rgba(255,255,255,${this.a})`;
+        ctx.lineWidth = 1; ctx.beginPath(); ctx.moveTo(this.x, this.y); ctx.lineTo(this.x - this.l, this.y - this.l * 0.5); ctx.stroke();
+      }
+    }
+
+    function draw() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      stars.forEach(s => s.draw());
+      if (Math.random() < COSMOS_CONF.meteorRequestRate) meteors.push(new Meteor());
+      meteors.forEach((m, i) => { m.draw(); if (m.a <= 0) meteors.splice(i, 1); });
+      planets.forEach(p => p.draw());
+      requestAnimationFrame(draw);
+    }
+
+    // --- 业务逻辑 ---
+    const APP_CONF = {
+      // togetherMs 预设值已移除，改为动态获取当前时间
+      photoUrl: "https://images.unsplash.com/photo-1581012772199-6422d561245a?q=80&w=1920",
+      lines: ["于万千星辰中，我捕捉到了你的光。", "原本荒芜的宇宙，因你的出现而有了引力。", "这一刻，我想邀请你共同命名余下的时光。"],
+      finalQuotes: ["“你是我所有浪漫的起源。”", "“星河滚烫，你是人间理想。”"]
     };
 
     window.onload = () => {
       initCanvas();
-      drawStars();
-      const status = localStorage.getItem('site_status');
-      if (status === 'eternal') {
-        enterStageMemorial(true);
-      }
+      for (let i = 0; i < COSMOS_CONF.starCount; i++) stars.push(new Star());
+      for (let i = 0; i < COSMOS_CONF.planetCount; i++) planets.push(new Planet(i));
+      draw();
+      if (localStorage.getItem('site_status_v2') === 'eternal') enterStageMemorial(true);
     };
 
-    function awaken() {
+    function awakenCosmos() {
       document.getElementById('stage-init').style.opacity = '0';
       setTimeout(() => {
         document.getElementById('stage-init').style.display = 'none';
-        enterStageProposal();
+        const p = document.getElementById('stage-proposal'); p.style.display = 'block';
+        setTimeout(() => { p.style.opacity = 1; startProposal(); }, 50);
       }, 1500);
     }
 
-    async function enterStageProposal() {
-      document.getElementById('stage-proposal').style.display = 'block';
-      for (let i = 1; i <= 3; i++) {
-        await typeText(`line${i}`, CONFIG.lines[i - 1]);
+    async function startProposal() {
+      for (let i = 0; i < APP_CONF.lines.length; i++) {
+        await typeText(`line${i + 1}`, APP_CONF.lines[i]);
       }
-      document.getElementById('proposal-btns').style.opacity = '1';
+      document.getElementById('proposal-btns').style.opacity = 1;
     }
 
     function typeText(id, text) {
-      return new Promise(resolve => {
-        let i = 0;
-        const el = document.getElementById(id);
-        const interval = setInterval(() => {
-          el.innerText += text[i];
-          i++;
-          if (i >= text.length) {
-            clearInterval(interval);
-            resolve();
-          }
-        }, 100);
+      return new Promise(res => {
+        let i = 0; const el = document.getElementById(id);
+        const inv = setInterval(() => {
+          el.innerText += text[i++];
+          if (i >= text.length) { clearInterval(inv); res(); }
+        }, 120);
       });
     }
 
-    function dodge() {
-      const btn = document.getElementById('no-btn');
-      btn.style.transform = `translate(${Math.random() * 200 - 100}px, ${Math.random() * 200 - 100}px) scale(0.5)`;
-      btn.style.opacity = '0.3';
-    }
+    // --- 重点优化逻辑 ---
+    function acceptLove() {
+      localStorage.setItem('site_status_v2', 'eternal');
 
-    function accept() {
-      localStorage.setItem('site_status', 'eternal');
-      localStorage.setItem('start_ms', new Date().getTime());
+      // 关键：点击 YES 的瞬时获取当前时间戳作为计时起点
+      const currentMs = new Date().getTime();
+      localStorage.setItem('together_ms_v2', currentMs);
 
-      // 视觉大彩蛋：全屏发光
-      const orb = document.createElement('div');
-      orb.style.cssText = "position:fixed; top:50%; left:50%; width:1px; height:1px; background:white; box-shadow:0 0 500px 500px white; z-index:100; transition:2s; transform:translate(-50%, -50%);";
-      document.body.appendChild(orb);
-
-      setTimeout(() => {
-        orb.style.opacity = '0';
-        enterStageMemorial(false);
-      }, 1500);
+      document.getElementById('stage-proposal').style.opacity = 0;
+      setTimeout(() => enterStageMemorial(false), 2000);
     }
 
     function enterStageMemorial(isQuick) {
       document.getElementById('stage-init').style.display = 'none';
       document.getElementById('stage-proposal').style.display = 'none';
       const mem = document.getElementById('stage-memorial');
-      mem.style.display = 'block';
+      mem.style.display = 'flex';
+      setTimeout(() => {
+        mem.style.opacity = 1;
+        setTimeout(() => { document.getElementById('story-scroll').style.opacity = 1; }, 1500);
+      }, 100);
 
-      // 彩蛋：背景照片隐约浮现
       const bg = document.getElementById('bg-photo');
-      bg.style.backgroundImage = `url(${CONFIG.photoUrl})`;
-      bg.style.opacity = '0.3';
+      bg.style.backgroundImage = `url(${APP_CONF.photoUrl})`;
+      bg.style.opacity = 0.35;
+      document.getElementById('final-quote').innerText = APP_CONF.finalQuotes[Math.floor(Math.random() * APP_CONF.finalQuotes.length)];
 
-      // 随机最终情话
-      document.getElementById('final-quote').innerText = CONFIG.finalQuotes[Math.floor(Math.random() * CONFIG.finalQuotes.length)];
-
+      // 传入 false，代表点击后开始，不需要从 preset 读取过去时间
       startClock();
     }
 
     function startClock() {
-      const start = localStorage.getItem('start_ms');
+      // 优先从 localStorage 读取，如果读取不到（比如刚点击 YES），则使用 APP_CONF.togetherMs(这里已被移除)
+      // 修正逻辑：点击 YES 时已经存入，所以这里一定能读取到准确的开始时间
+      const startMs = localStorage.getItem('together_ms_v2');
+      if (!startMs) return; // 安全检查
+
       const el = document.getElementById('timer-val');
       function update() {
-        const diff = new Date().getTime() - start;
-        const d = Math.floor(diff / (1000 * 60 * 60 * 24));
-        const h = Math.floor((diff % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((diff % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((diff % (1000 * 60)) / 1000);
+        const diff = new Date().getTime() - startMs;
+        const d = Math.floor(diff / 86400000), h = Math.floor((diff % 86400000) / 3600000), m = Math.floor((diff % 3600000) / 60000), s = Math.floor((diff % 60000) / 1000);
         const pad = n => n < 10 ? '0' + n : n;
         el.innerHTML = `${pad(d)}<span>D</span>${pad(h)}<span>H</span>${pad(m)}<span>M</span>${pad(s)}<span>S</span>`;
       }
-      setInterval(update, 1000);
-      update();
+      setInterval(update, 1000); update();
     }
 
-    // 交互彩蛋：点击爆裂
-    window.addEventListener('click', (e) => {
-      if (localStorage.getItem('site_status') !== 'eternal') return;
-      const particle = document.createElement('div');
-      particle.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; width:4px; height:4px; background:white; box-shadow:0 0 15px white; border-radius:50%; pointer-events:none; z-index:99; transition:1s;`;
-      document.body.appendChild(particle);
-      setTimeout(() => {
-        particle.style.transform = `scale(10) translateY(-50px)`;
-        particle.style.opacity = '0';
-      }, 10);
-      setTimeout(() => particle.remove(), 1000);
-    });
+    function dodgeNo() {
+      const btn = document.getElementById('no-btn');
+      btn.style.transform = `translate(${Math.random() * 160 - 80}px, ${Math.random() * 160 - 80}px) scale(0.8)`;
+      btn.innerText = "NO!";
+    }
 
+    function createStarPop(e) {
+      if (e.target.closest('#story-scroll')) return;
+      for (let i = 0; i < 6; i++) {
+        const p = document.createElement('div');
+        p.style.cssText = `position:fixed; left:${e.clientX}px; top:${e.clientY}px; width:3px; height:3px; background:#fff; border-radius:50%; z-index:99; transition:0.8s;`;
+        document.body.appendChild(p);
+        setTimeout(() => {
+          const a = Math.random() * Math.PI * 2; const d = Math.random() * 40 + 20;
+          p.style.transform = `translate(${Math.cos(a) * d}px, ${Math.sin(a) * d}px) scale(0)`;
+          p.style.opacity = 0;
+        }, 10);
+        setTimeout(() => p.remove(), 800);
+      }
+    }
+    window.onresize = () => initCanvas();
   </script>
 </body>
 
